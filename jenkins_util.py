@@ -11,7 +11,12 @@ def build_branch(jenkins, branch, docker=False, installers=False):
 
     def get_url():
         queue_item = jenkins.get_queue_item(queue_item_number)
-        return queue_item['executable']['url'] if 'executable' in queue_item else None
+        if 'executable' not in queue_item:
+            return None
+        executable = queue_item['executable']
+        if not executable:
+            return None
+        return executable['url']
 
     return until_first_some(get_url)
 
