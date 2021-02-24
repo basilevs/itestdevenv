@@ -6,4 +6,4 @@ def until_first_some(method):
         result = method()
         if result:
             return result
-        sleep(1)
+        sleep(2)
