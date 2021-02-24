@@ -3,12 +3,12 @@ from sys import stderr
 
 
 def _run_command(*command_and_arguments):
-    print("$", *command_and_arguments)
+    print("$", *command_and_arguments, flush=True)
     run(command_and_arguments, capture_output=False, check=True)
 
 
 def _get_output(*command_and_arguments):
-    print("$", *command_and_arguments)
+    print("$", *command_and_arguments, flush=True)
     result = run(command_and_arguments, capture_output=True, check=True)
     print(result.stderr.decode('utf-8'), file=stderr)
     return result.stdout.decode('utf-8')
@@ -43,11 +43,12 @@ class Git:
             _run_command('git', 'fetch', 'origin', branch + ':' + branch)
             _run_command('git', 'checkout', branch)
 
-    def update_branch(self, branch):
-        self.checkout(branch)
+    def update_branch(self, target, *source):
+        self.checkout(target)
         try:
-            self.pull_branch(branch)
+            self.pull_branch(target)
         except CalledProcessError:
             pass
-        self.pull_branch('v8.4.0')
-        self.push_branch(branch, branch)
+        for s in source:
+            self.pull_branch(s)
+        self.push_branch(target, target)
