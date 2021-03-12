@@ -12,12 +12,21 @@ def _print_queue_item(queue_item):
         pprint(queue_item)
 
 
-def build_branch(jenkins, branch, docker=False, installers=False):
+def build_branch(jenkins, branch, docker=False, installers=False, test=True, version='8.5.0'):
     """ Starts branch build, returns build URL """
     parameters = {'BRANCH': branch,
                   'BUILD_DOCKER': docker,
                   'build_installers': installers,
-                  'GENERATE_RUN_FILES': installers}
+                  'GENERATE_RUN_FILES': installers,
+                  'do_testing': test,
+                  'do_testing_linux': test,
+                  'do_testing_windows': test,
+                  'RCPTT_TESTING': test,
+                  'do_rcptt_windows': test,
+                  'ITEST_BUILD_VERSION': version,
+                  'installer_branch': 'v' + version,
+                  'thirdparty_jre_branch': 'v' + version
+                  }
     queue_item_number = jenkins.build_job('itest--branches', parameters)
 
     def get_url():

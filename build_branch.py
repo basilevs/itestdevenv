@@ -11,6 +11,7 @@ branch = git.current_branch()
 jenkins = Jenkins('https://jenkins-itest.spirenteng.com/jenkins/', username='vgulevich',
                   password=environ['JENKINS_TOKEN'])
 
-git.update_branch(branch)
+version = '8.5.0'
+git.update_branch(branch, 'v' + version)
 
-print(build_branch(jenkins, branch))
+print(build_branch(jenkins, branch, installers=True, test=True, version=version))
