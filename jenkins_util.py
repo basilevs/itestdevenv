@@ -35,8 +35,12 @@ def build_branch(jenkins, branch, docker=False, installers=False, test=True, ver
         try:
             executable = queue_item['executable']
             return executable['url']
-        except KeyError:
+        except (TypeError, KeyError):
             _print_queue_item(queue_item)
             return None
 
     return until_first_some(get_url)
+
+
+def wait_build(jenkins, job, build):
+    until_first_some(lambda: jenkins.get_build_info(job, build)['duration'])
