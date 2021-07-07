@@ -7,8 +7,15 @@ from os.path import join, exists
 from pprint import pprint
 from sys import argv
 from unzipurl import unzip_url
+from platform import system
 
-url_template = "https://artifactory-ito.spirenteng.com/artifactory/apt-jenkins-itest-builds/{0}/{1}/{2}/iTest-linux.gtk.x86_64.zip"
+suffix = None
+if system() == 'Windows':
+    suffix = 'win32.win32.x86_64.zip'
+elif system() == 'Linux':
+    suffix = 'linux.gtk.x86_64.zip'
+    
+url_template = "https://artifactory-ito.spirenteng.com/artifactory/apt-jenkins-itest-builds/{0}/{1}/{2}/iTest-" + suffix
 
 def build_url(job, number):
     project, name = job.split("--")
