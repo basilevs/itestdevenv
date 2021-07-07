@@ -2,12 +2,14 @@
 
 from tempfile import TemporaryFile
 from zipfile import ZipFile, ZipInfo
+from sys import argv
 from os import chmod
 from requests import get
 
 
 class ZipFileWithPermissions(ZipFile):
     """ Custom ZipFile class handling file permissions. """
+
     def _extract_member(self, member, targetpath, pwd):
         if not isinstance(member, ZipInfo):
             member = self.getinfo(member)
@@ -20,8 +22,8 @@ class ZipFileWithPermissions(ZipFile):
         return targetpath
 
 
-
 def unzip_url(url, dst_dir):
+    """ Download and unzip a ZIP file from an URL. """
     with TemporaryFile() as temp_file:
         download_file(url, temp_file)
         temp_file.flush()
@@ -31,11 +33,12 @@ def unzip_url(url, dst_dir):
                 raise ValueError("Failed to unzip: " + error)
             zip.extractall(path=dst_dir)
 
-def download_file(url, f):
-    # NOTE the stream=True parameter below
+
+def download_file(url, file):
+    """ Download an URL to a file object. Recover if download is not complete when connection is reset. """
     size = -1
-    while size < 0 or f.tell() < size:
-        headers = { 'Range': 'bytes={}-'.format(f.tell()) }
+    while size < 0 or file.tell() < size:
+        headers = { 'Range': 'bytes={}-'.format(file.tell()) }
         with get(url, stream=True, headers=headers) as r:
             r.raise_for_status()
             if size < 0:
@@ -43,11 +46,11 @@ def download_file(url, f):
             else:
                 print()
                 print('Connection reset')
-            for chunk in r.iter_content(chunk_size=int(size/100)): 
-                # If you have chunk encoded response uncomment if
-                # and set chunk_size parameter to None.
-                #if chunk: 
-                f.write(chunk)
-                position = f.tell()
-                print('\r', int(position/size*100), '%', end='', flush=True)
+            for chunk in r.iter_content(chunk_size=int(size / 100)):
+                file.write(chunk)
+                print('\r', int(file.tell() / size * 100), '%', end='', flush=True)
     print('')
+
+
+if __name__ == "__main__":
+    unzip_url(url=argv[1], dst_dir=argv[2])
