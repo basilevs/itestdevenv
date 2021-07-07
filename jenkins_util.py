@@ -34,6 +34,8 @@ def build_branch(jenkins, branch, docker=False, installers=False, test=True, ver
 
         try:
             executable = queue_item['executable']
+            if not executable:
+                return None
             return executable['url']
         except (TypeError, KeyError):
             _print_queue_item(queue_item)
