@@ -22,21 +22,35 @@ def build_url(job, number):
     return url_template.format(name, project, number, suffix)
 
 
-def download_build(job, number):
-    dst_dir = join(gettempdir(), 'itest', job, str(number))
-    if exists(dst_dir):
-        raise ValueError(dst_dir + ' already exists')
-    unzip_url(build_url(job, number), dst_dir)
+def _write_file(filename, content):
+    with open(filename, 'w') as f:
+        f.write(content)
+
+
+def configure_itest(unzip_root):
     settings_dir = join(dst_dir, 'iTest', 'configuration', '.settings')
-    makedirs(settings_dir, )
-    print('Unzipped to ' + dst_dir)
-    with open(join(settings_dir, 'com.fnfr.svt.configuration.licensing.flexlm.prefs'), 'w') as f:
-        f.write("""eclipse.preferences.version=1
+    makedirs(settings_dir,)
+    _write_file(join(settings_dir, 'com.fnfr.svt.configuration.licensing.flexlm.prefs'), """eclipse.preferences.version=1
 licensePath=
 licenseServers=englshost.spirenteng.com\:-1;
 useLicenseFile=false
 useLicenseServer=true
 """)
+    _write_file(join(settings_dir, 'com.fnfr.itest.platform.configuration.prefs'), """borrowUntil=1625849999999
+borrowingEnabled=false
+eclipse.preferences.version=1
+selectedProductModules=
+selectedProductType=com.fnfr.producttypes.enterprise
+""")
+
+
+def download_build(job, number):
+    dst_dir = join(gettempdir(), 'itest', job, str(number))
+    if exists(dst_dir):
+        raise ValueError(dst_dir + ' already exists')
+    unzip_url(build_url(job, number), dst_dir)
+    print('Unzipped to ' + dst_dir)
+    configure_itest(dst_dir)
             
 
 if __name__ == "__main__":
