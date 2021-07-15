@@ -30,7 +30,7 @@ def unzip_url(url, dst_dir):
         with ZipFileWithPermissions(temp_file) as zip:
             error = zip.testzip()
             if error:
-                raise ValueError("Failed to unzip: " + error)
+                raise ValueError("Failed to unzip {0}: {1}".format(url, error))
             zip.extractall(path=dst_dir)
 
 
