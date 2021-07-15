@@ -28,7 +28,7 @@ def _write_file(filename, content):
 
 
 def configure_itest(unzip_root):
-    settings_dir = join(dst_dir, 'iTest', 'configuration', '.settings')
+    settings_dir = join(unzip_root, 'iTest', 'configuration', '.settings')
     makedirs(settings_dir,)
     _write_file(join(settings_dir, 'com.fnfr.svt.configuration.licensing.flexlm.prefs'), """eclipse.preferences.version=1
 licensePath=
@@ -42,6 +42,8 @@ eclipse.preferences.version=1
 selectedProductModules=
 selectedProductType=com.fnfr.producttypes.enterprise
 """)
+    with open(join(unzip_root, 'iTest', 'iTest.ini'), 'a') as f:
+        f.write('-agentlib:jdwp=transport=dt_socket,server=y,address=8000,suspend=n\n')
 
 
 def download_build(job, number):
