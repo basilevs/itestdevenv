@@ -38,14 +38,14 @@ def unzip_url(url, dst_dir):
 def download_file(url, file):
     """ Download an URL to a file object. Recover if download is not complete when connection is reset. """
     size = -1
-    progress = None
+    progress = Bar('Downloading', suffix = '%(eta_td)s')
     while size < 0 or file.tell() < size:
         headers = { 'Range': 'bytes={}-'.format(file.tell()) }
         with get(url, stream=True, headers=headers) as r:
             r.raise_for_status()
             if size < 0:
                 size = int(r.headers.get('Content-Length'))
-                progress = Bar('Downloading', max = size, suffix = '%(eta_td)s')
+                progress.max = size
             else:
                 print()
                 print('Connection reset')
