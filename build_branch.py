@@ -22,7 +22,7 @@ def build_branch():
     branch = git.current_branch()
     # branch = 'bug/RM-23112--errorCode'
     git.update_branch(branch, 'v' + version)
-    build_url = jenkins_build_branch(jenkins, branch, installers=True, test=True, version=version)
+    build_url = jenkins_build_branch(jenkins, branch, docker=True, installers=True, test=True, version=version)
     print(build_url)
     
     for merge in itest_project.mergerequests.list(source_branch=branch):
