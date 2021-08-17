@@ -1,5 +1,6 @@
-from util import until_first_some
 from pprint import pprint
+
+from .util import until_first_some
 
 
 def _print_queue_item(queue_item):

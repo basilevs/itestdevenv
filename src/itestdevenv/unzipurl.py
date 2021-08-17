@@ -28,11 +28,11 @@ def unzip_url(url, dst_dir):
     with TemporaryFile() as temp_file:
         download_file(url, temp_file)
         temp_file.flush()
-        with ZipFileWithPermissions(temp_file) as zip:
-            error = zip.testzip()
+        with ZipFileWithPermissions(temp_file) as zip_file:
+            error = zip_file.testzip()
             if error:
                 raise ValueError("Failed to unzip {0}: {1}".format(url, error))
-            zip.extractall(path=dst_dir)
+            zip_file.extractall(path=dst_dir)
 
 
 def download_file(url, file):
@@ -52,7 +52,7 @@ def download_file(url, file):
             for chunk in r.iter_content(chunk_size=int(size / 1000)):
                 file.write(chunk)
                 if progress:
-                     progress.goto(file.tell())
+                    progress.goto(file.tell())
     if progress:
         progress.finish()
 

@@ -1,10 +1,11 @@
 from os import environ
 
 from jenkins import Jenkins
-from git import Git
-from jenkins_util import build_branch as jenkins_build_branch
-
+from .jenkins_util import build_branch as jenkins_build_branch
 from gitlab import Gitlab
+
+from .git import Git
+
 
 gitlab = Gitlab('https://git-ito.spirenteng.com', private_token=environ['GIT_ITO_TOKEN'])
 
