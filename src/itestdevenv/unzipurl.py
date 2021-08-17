@@ -4,8 +4,7 @@ from tempfile import TemporaryFile
 from zipfile import ZipFile, ZipInfo
 from sys import argv
 from os import chmod
-from requests import get
-from progress.bar import Bar
+from .download import download_file
 
 
 class ZipFileWithPermissions(ZipFile):
@@ -33,29 +32,6 @@ def unzip_url(url, dst_dir):
             if error:
                 raise ValueError("Failed to unzip {0}: {1}".format(url, error))
             zip_file.extractall(path=dst_dir)
-
-
-def download_file(url, file):
-    """ Download an URL to a file object. Recover if download is not complete when connection is reset. """
-    size = -1
-    progress = Bar('Downloading', suffix = '%(eta_td)s')
-    while size < 0 or file.tell() < size:
-        headers = { 'Range': 'bytes={}-'.format(file.tell()) }
-        with get(url, stream=True, headers=headers) as r:
-            r.raise_for_status()
-            if size < 0:
-                size = int(r.headers.get('Content-Length'))
-                progress.max = size
-            else:
-                print()
-                print('Connection reset')
-            for chunk in r.iter_content(chunk_size=int(size / 1000)):
-                file.write(chunk)
-                if progress:
-                    progress.goto(file.tell())
-    if progress:
-        progress.finish()
-
 
 if __name__ == "__main__":
     unzip_url(url=argv[1], dst_dir=argv[2])
