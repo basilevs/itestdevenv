@@ -30,6 +30,10 @@ class Git:
     @staticmethod
     def push():
         _run_command('git', 'push')
+        
+    @staticmethod
+    def toplevel():
+        return _get_output('git', 'rev-parse', '--show-toplevel').rstrip()
 
     @staticmethod
     def push_branch(local, remote):

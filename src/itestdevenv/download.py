@@ -17,7 +17,7 @@ def download_file(url, file):
             else:
                 print()
                 print('Connection reset')
-            for chunk in r.iter_content(chunk_size=int(size / 1000)):
+            for chunk in r.iter_content(chunk_size=int(size / 500)):
                 file.write(chunk)
                 if progress:
                     progress.goto(file.tell())
