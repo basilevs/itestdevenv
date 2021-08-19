@@ -63,8 +63,9 @@ def configure_itest(unzip_root):
 
 def download_build(job, number):
     dst_dir = join(tempdir, job, str(number))
-    if exists(dst_dir):
-        raise ValueError(dst_dir + ' already exists')
+    install_dir = join(dst_dir, 'iTest')
+    if exists(install_dir):
+        raise ValueError(install_dir + ' already exists')
     unzip_url(build_url(job, number), dst_dir)
     print('Unzipped to ' + dst_dir)
     configure_itest(dst_dir)
