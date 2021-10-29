@@ -41,8 +41,8 @@ def build_branch(branch=None):
         print(merge.description)
         merge.notes.create(data={'body': "Started {}".format(build_url)})
         message = "Latest build: " + build_url
-        description, count = subn(r'(?:(?<=^)|(?<=\n))Latest build: https://[^\s]+(?=$|\n)', message, merge.description, count=1)
+        description, count = subn(r'Latest build: https://[^\s]+(?=$|\n)', message, merge.description, count=1)
         if count == 0:
-            description = merge.description + '\n' + message
+            description = merge.description + '\n\n' + message
         merge.description = description
         merge.save()
