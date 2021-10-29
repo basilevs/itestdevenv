@@ -42,10 +42,11 @@ class Git:
     @staticmethod
     def checkout(branch):
         try:
-            _run_command('git', 'checkout', branch)
-        except CalledProcessError:
             _run_command('git', 'fetch', 'origin', branch + ':' + branch)
-            _run_command('git', 'checkout', branch)
+        except CalledProcessError:
+            pass        
+        _run_command('git', 'checkout', branch)
+#        _run_command('git', 'lfs', 'pull')
 
     def update_branch(self, target, *source):
         self.checkout(target)
