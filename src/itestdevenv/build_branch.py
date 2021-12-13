@@ -32,7 +32,9 @@ def build_branch(branch=None):
     version = remove_qualifier(extract_version(main_pom))
     merge_requests = [merge for merge in itest_project.mergerequests.list(source_branch=branch) if merge.state == 'opened']
     branches = [merge.target_branch for merge in merge_requests]
-    git.update_branch(branch, *branches, 'v' + version)
+    if not branches:
+        branches.append('v' + version)
+    git.update_branch(branch, *branches)
     build_url = jenkins_build_branch(jenkins, branch, docker=True, installers=True, test=True, version=version)
     print(build_url)
     
