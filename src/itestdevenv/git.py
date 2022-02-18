@@ -15,13 +15,17 @@ def _get_output(*command_and_arguments):
 
 
 class Git:
+    
+    def __init__(self):
+        self._current_branch = None
+        
     @staticmethod
     def pull_branch(branch):
         _run_command('git', 'pull', 'origin', branch)
 
-    @staticmethod
-    def current_branch():
-        return _get_output('git', 'branch', '--show-current').strip()
+    def current_branch(self):
+        self._current_branch = _get_output('git', 'branch', '--show-current').strip() 
+        return self._current_branch
 
     @staticmethod
     def pull():
@@ -39,17 +43,18 @@ class Git:
     def push_branch(local, remote):
         _run_command('git', 'push', 'origin', local + ":" + remote)
 
-    @staticmethod
-    def checkout(branch):
+    def checkout(self, branch):
         try:
             _run_command('git', 'fetch', 'origin', branch + ':' + branch)
         except CalledProcessError:
             pass        
         _run_command('git', 'checkout', branch)
+        self._current_branch = branch
 #        _run_command('git', 'lfs', 'pull')
 
     def update_branch(self, target, *source):
-        self.checkout(target)
+        if self._current_branch != target: 
+            self.checkout(target)
         try:
             self.pull_branch(target)
         except CalledProcessError:
