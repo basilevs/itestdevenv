@@ -1,15 +1,15 @@
-from subprocess import run, CalledProcessError
+from subprocess import run, CalledProcessError, PIPE
 from sys import stderr
 
 
 def _run_command(*command_and_arguments):
     print("$", *command_and_arguments, flush=True)
-    run(command_and_arguments, capture_output=False, check=True)
+    run(command_and_arguments, stdout=None, stderr=None, check=True)
 
 
 def _get_output(*command_and_arguments):
     print("$", *command_and_arguments, flush=True)
-    result = run(command_and_arguments, capture_output=True, check=True)
+    result = run(command_and_arguments, stdout=PIPE, stderr=PIPE, check=True)
     print(result.stderr.decode('utf-8'), file=stderr)
     return result.stdout.decode('utf-8')
 
