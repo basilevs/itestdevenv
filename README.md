@@ -4,8 +4,8 @@ Usage:
 
 ```
 
-export GIT_ITO_TOKEN=
-export JENKINS_ITEST_TOKEN=
+export GIT_ITO_TOKEN= #https://git-ito.spirenteng.com/-/profile/personal_access_tokens
+export JENKINS_ITEST_TOKEN= #https://jenkins-itest.spirenteng.com/jenkins/user/<user>/configure
 
 git clone git@github.com:basilevs/itestdevenv.git
 python3 -m pip install -e ./itestdevenv
