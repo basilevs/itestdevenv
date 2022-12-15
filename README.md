@@ -6,7 +6,9 @@ Usage:
 
 export GIT_ITO_TOKEN=
 export JENKINS_ITEST_TOKEN=
-export PYTHONPATH=..../git/itestdevenv/src/
+
+git clone git@github.com:basilevs/itestdevenv.git
+python3 -m pip install -e ./itestdevenv
 
 cd ~/git/itest
 

@@ -30,13 +30,20 @@ def _write_file(filename, content):
 tempdir = join(gettempdir(), 'itest')
 
 def configure_itest(unzip_root):
-    settings_dir = join(unzip_root, 'iTest', 'configuration', '.settings')
+    product_root = join(unzip_root, 'iTest')
+    if not exists(product_root):
+        product_root = join(unzip_root, 'iTest.app', 'Contents', 'Eclipse')
+    if not exists(product_root):
+        raise ValueError("Can't find product dir in " + unzip_root)
+    settings_dir = join(configuration_dir, 'configuration', '.settings')
     makedirs(settings_dir,)
     _write_file(join(settings_dir, 'com.fnfr.svt.configuration.licensing.flexlm.prefs'), 
              """eclipse.preferences.version=1
                 licensePath=
-                licenseServers=englshost.spirenteng.com\:-1;
+                licenseServers=lic\://englshost.spirenteng.com;
                 useLicenseFile=false
+                licensingProxyServer.host=englshost.spirenteng.com
+                licensingProxyServer.port=9011
                 useLicenseServer=true
              """)
     _write_file(join(settings_dir, 'com.fnfr.itest.platform.configuration.prefs'), 
@@ -55,7 +62,7 @@ def configure_itest(unzip_root):
             SHOW_WORKSPACE_SELECTION_DIALOG=false
             eclipse.preferences.version=1
          """)
-    with open(join(unzip_root, 'iTest', 'iTest.ini'), 'a') as f:
+    with open(join(product_root, 'iTest.ini'), 'a') as f:
         f.write('-agentlib:jdwp=transport=dt_socket,server=y,address=127.0.0.1:8000,suspend=n\n')
     
 
