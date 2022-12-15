@@ -35,7 +35,7 @@ def configure_itest(unzip_root):
         product_root = join(unzip_root, 'iTest.app', 'Contents', 'Eclipse')
     if not exists(product_root):
         raise ValueError("Can't find product dir in " + unzip_root)
-    settings_dir = join(configuration_dir, 'configuration', '.settings')
+    settings_dir = join(product_root, 'configuration', '.settings')
     makedirs(settings_dir,)
     _write_file(join(settings_dir, 'com.fnfr.svt.configuration.licensing.flexlm.prefs'), 
              """eclipse.preferences.version=1
