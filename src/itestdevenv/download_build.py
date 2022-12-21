@@ -7,17 +7,26 @@ from os.path import join, exists
 from os import makedirs
 from pprint import pprint
 from sys import argv
-from platform import system
+from platform import system, processor
 
 from .unzipurl import unzip_url
 
 
-def build_url(job, number):
-    system_to_suffix = {'Windows': 'win32.win32.x86_64', 'Linux': 'linux.gtk.x86_64', 'Darwin': 'macosx.cocoa.x86_64'}
+def architecture_suffix():
+    processor_to_suffix = {'x86_64': 'x86_64', 'arm': 'aarch64'}
+    try:
+        return processor_to_suffix[processor()]
+    except KeyError:
+        raise KeyError('Unknown processor' + processor())
+
+
+def build_url(job, number, architecture='x86_64'):
+    system_to_suffix = {'Windows': 'win32.win32', 'Linux': 'linux.gtk', 'Darwin': 'macosx.cocoa'}
     try:
         suffix = system_to_suffix[system()]
     except:
-        raise KeyError("Unknown system " + system())    
+        raise KeyError("Unknown system " + system())
+    suffix = suffix + '.' + architecture
     url_template = "https://artifactory-ito.spirenteng.com/artifactory/apt-jenkins-itest-builds/{0}/{1}/{2}/iTest-{3}.zip" 
     project, name = job.split("--")
     return url_template.format(name, project, number, suffix)
@@ -36,7 +45,7 @@ def configure_itest(unzip_root):
     if not exists(product_root):
         raise ValueError("Can't find product dir in " + unzip_root)
     settings_dir = join(product_root, 'configuration', '.settings')
-    makedirs(settings_dir)
+    makedirs(settings_dir, exist_ok=True)
     _write_file(join(settings_dir, 'com.fnfr.svt.configuration.licensing.flexlm.prefs'), 
              """eclipse.preferences.version=1
                 licensePath=
@@ -64,16 +73,23 @@ def configure_itest(unzip_root):
          """)
     with open(join(product_root, 'iTest.ini'), 'a') as f:
         f.write('-agentlib:jdwp=transport=dt_socket,server=y,address=127.0.0.1:8000,suspend=n\n')
-    
-
-
 
 def download_build(job, number):
     dst_dir = join(tempdir, job, str(number))
     install_dir = join(dst_dir, 'iTest')
     if exists(install_dir):
         raise ValueError(install_dir + ' already exists')
-    unzip_url(build_url(job, number), dst_dir)
+    def try_arch(arhitecture):
+        unzip_url(build_url(job, number, arhitecture), dst_dir)
+    
+    arch = architecture_suffix()
+    try:
+        try_arch(arch)
+    except KeyError:
+        if arch != 'x86_64':
+            try_arch('x86_64')
+        else:
+            raise
     print('Unzipped to ' + dst_dir)
     configure_itest(dst_dir)
             

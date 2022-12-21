@@ -11,6 +11,8 @@ def download_file(url, file):
     while size < 0 or file.tell() < size:
         headers = { 'Range': 'bytes={}-'.format(file.tell()) }
         with get(url, stream=True, headers=headers) as r:
+            if r.status_code == 404:
+                raise KeyError(url + ' is not found')
             r.raise_for_status()
             if size < 0:
                 size = int(r.headers.get('Content-Length'))
