@@ -20,16 +20,16 @@ def architecture_suffix():
         raise KeyError('Unknown processor' + processor())
 
 
-def build_url(job, number, architecture='x86_64'):
+def build_url(job, number, architecture='x86_64', product='iTest'):
     system_to_suffix = {'Windows': 'win32.win32', 'Linux': 'linux.gtk', 'Darwin': 'macosx.cocoa'}
     try:
         suffix = system_to_suffix[system()]
     except:
         raise KeyError("Unknown system " + system())
     suffix = suffix + '.' + architecture
-    url_template = "https://artifactory-ito.spirenteng.com/artifactory/apt-jenkins-itest-builds/{0}/{1}/{2}/iTest-{3}.zip" 
+    url_template = "https://artifactory-ito.spirenteng.com/artifactory/apt-jenkins-itest-builds/{0}/{1}/{2}/{4}-{3}.zip" 
     project, name = job.split("--")
-    return url_template.format(name, project, number, suffix)
+    return url_template.format(name, project, number, suffix, product)
 
 
 def _write_file(filename, content):
@@ -74,14 +74,21 @@ def configure_itest(unzip_root):
     with open(join(product_root, 'iTest.ini'), 'a') as f:
         f.write('-agentlib:jdwp=transport=dt_socket,server=y,address=127.0.0.1:8000,suspend=n\n')
 
-def download_build(job, number):
-    dst_dir = join(tempdir, job, str(number))
-    install_dir = join(dst_dir, 'iTest')
-    if exists(install_dir):
-        raise ValueError(install_dir + ' already exists')
-    def try_arch(arhitecture):
-        unzip_url(build_url(job, number, arhitecture), dst_dir)
-    
+def download_itest(job, number):
+    dst_dir = download_build(job, number, 'iTest')
+    configure_itest(dst_dir)
+
+def download_itestrt(job, number):
+    download_build(job, number, 'iTestRT')
+
+
+def download_build(job, number, product):
+    dst_dir = join(tempdir, job, str(number), product)
+    if exists(dst_dir):
+        raise ValueError(dst_dir + ' already exists')
+        
+    def try_arch(architecture):
+        unzip_url(build_url(job, number, architecture=architecture, product=product), dst_dir) 
     arch = architecture_suffix()
     try:
         try_arch(arch)
@@ -90,8 +97,10 @@ def download_build(job, number):
             try_arch('x86_64')
         else:
             raise
+            
     print('Unzipped to ' + dst_dir)
-    configure_itest(dst_dir)
+    return dst_dir
+
             
 
 if __name__ == "__main__":
