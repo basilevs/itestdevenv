@@ -104,5 +104,5 @@ def download_build(job, number, product):
             
 
 if __name__ == "__main__":
-    download_build(job=argv[1], number=int(argv[2]))
+    download_itest(job=argv[1], number=int(argv[2]))
     # download_build('itest--branches', 4189)
