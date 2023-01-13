@@ -56,4 +56,7 @@ def build_branch(branch=None):
         
         #https://git-ito.spirenteng.com/itest/itest/-/merge_requests/new?merge_request%5Bsource_branch%5D=bug%2FITEST-20735--log4jcve
         print(itest_project.web_url + '/-/merge_requests/new?' + urlencode(query))
-        
+
+if __name__ == '__main__':
+    build_branch()
+
