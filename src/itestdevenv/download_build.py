@@ -7,17 +7,17 @@ from os.path import join, exists
 from os import makedirs
 from pprint import pprint
 from sys import argv
-from platform import system, processor
+from platform import system, machine
 
 from .unzipurl import unzip_url
 
 
 def architecture_suffix():
-    processor_to_suffix = {'x86_64': 'x86_64', 'arm': 'aarch64'}
+    processor_to_suffix = {'x86_64': 'x86_64', 'arm': 'aarch64', 'AMD64':'x86_64', 'arm64': 'aarch64'}
     try:
-        return processor_to_suffix[processor()]
+        return processor_to_suffix[machine()]
     except KeyError:
-        raise KeyError('Unknown processor' + processor())
+        raise KeyError('Unknown processor ' + machine())
 
 
 def build_url(job, number, architecture='x86_64', product='iTest'):
