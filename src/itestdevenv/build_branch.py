@@ -24,7 +24,7 @@ jenkins = Jenkins('https://jenkins-itest.spirenteng.com/jenkins/', username='vgu
 main_pom = join(git.toplevel(), 'dev', 'src', 'releng', 'com.spirent.itest.releng.parent', 'pom.xml')
 
 
-def build_branch(branch=None):
+def build_branch(branch=None, docker=True, installers=True):
     if not branch:
         branch = git.current_branch()
     else:
@@ -36,7 +36,7 @@ def build_branch(branch=None):
     if not branches:
         branches.append(release_branch)
     git.update_branch(branch, *branches)
-    build_url = jenkins_build_branch(jenkins, branch, docker=True, installers=True, test=True, version=version)
+    build_url = jenkins_build_branch(jenkins, branch, docker=docker, installers=installers, test=True, version=version)
     print(build_url)
     
     for merge in merge_requests:

@@ -8,6 +8,7 @@ from os import makedirs
 from pprint import pprint
 from sys import argv
 from platform import system, machine
+from requests import get
 
 from .unzipurl import unzip_url
 
@@ -19,17 +20,27 @@ def architecture_suffix():
     except KeyError:
         raise KeyError('Unknown processor ' + machine())
 
+# https://artifactory-ito.spirenteng.com/artifactory/apt-jenkins-itest-builds/v9.3.0/itest/283/iTest-linux.gtk.x86_64.zip
+_url_prefix_template = "https://artifactory-ito.spirenteng.com/artifactory/apt-jenkins-itest-builds/{0}/{1}"
 
-def build_url(job, number, architecture='x86_64', product='iTest'):
+def url_prefix(job):
+    project, name = job.split("--")
+    return _url_prefix_template.format(name, project)
+
+def latest_build(url_prefix):
+    version_url = url_prefix + '/latest/version.txt'
+    response = get(version_url)
+    response.raise_for_status()
+    return int(response.text)
+
+def build_url(prefix, number, architecture='x86_64', product='iTest'):
     system_to_suffix = {'Windows': 'win32.win32', 'Linux': 'linux.gtk', 'Darwin': 'macosx.cocoa'}
     try:
         suffix = system_to_suffix[system()]
     except:
         raise KeyError("Unknown system " + system())
     suffix = suffix + '.' + architecture
-    url_template = "https://artifactory-ito.spirenteng.com/artifactory/apt-jenkins-itest-builds/{0}/{1}/{2}/{4}-{3}.zip" 
-    project, name = job.split("--")
-    return url_template.format(name, project, number, suffix, product)
+    return prefix + "/{0}/{1}-{2}.zip".format(number, product, suffix)
 
 
 def _write_file(filename, content):
@@ -74,7 +85,7 @@ def configure_itest(unzip_root):
     with open(join(product_root, 'iTest.ini'), 'a') as f:
         f.write('-agentlib:jdwp=transport=dt_socket,server=y,address=127.0.0.1:8000,suspend=n\n')
 
-def download_itest(job, number):
+def download_itest(job, number=None):
     dst_dir = download_build(job, number, 'iTest')
     configure_itest(dst_dir)
 
@@ -83,12 +94,15 @@ def download_itestrt(job, number):
 
 
 def download_build(job, number, product):
+    prefix = url_prefix(job)
+    if not number:
+        number = latest_build(prefix)
     dst_dir = join(tempdir, job, str(number), product)
     if exists(dst_dir):
         raise ValueError(dst_dir + ' already exists')
-        
+    
     def try_arch(architecture):
-        unzip_url(build_url(job, number, architecture=architecture, product=product), dst_dir) 
+        unzip_url(build_url(prefix, number, architecture=architecture, product=product), dst_dir) 
     arch = architecture_suffix()
     try:
         try_arch(arch)
@@ -102,7 +116,9 @@ def download_build(job, number, product):
     return dst_dir
 
             
-
 if __name__ == "__main__":
-    download_itest(job=argv[1], number=int(argv[2]))
+    number = None
+    if len(argv) > 2:
+        number=int(argv[2])
+    download_itest(job=argv[1], number=number)
     # download_build('itest--branches', 4189)
