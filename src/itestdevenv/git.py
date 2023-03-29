@@ -21,7 +21,7 @@ class Git:
         
     @staticmethod
     def pull_branch(branch):
-        _run_command('git', 'pull', 'origin', branch)
+        _run_command('git', 'pull', '--no-edit', 'origin', branch)
 
     def current_branch(self):
         self._current_branch = _get_output('git', 'branch', '--show-current').strip() 
@@ -51,6 +51,13 @@ class Git:
         _run_command('git', 'checkout', branch)
         self._current_branch = branch
 #        _run_command('git', 'lfs', 'pull')
+
+    def force_checkout(self, branch):
+        _run_command('git', 'checkout', '-f', branch)
+        self._current_branch = branch
+
+    def reset_hard(self):
+        _run_command('git', 'reset', '--hard')        
 
     def update_branch(self, target, *source):
         if self._current_branch != target: 
