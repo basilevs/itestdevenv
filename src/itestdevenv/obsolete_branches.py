@@ -34,7 +34,9 @@ def extract_jira_issue(branch):
     result = extract_jira_issue_from_str(branch.name)
     if result:
         return result
-    return extract_jira_issue_from_str(branch.attributes['commit']['title'])
+    commit = branch.attributes['commit']
+    result = extract_jira_issue_from_str(commit['title'])
+    return result
 
 def parse_date(iso_datetime):
     """ '2018-05-16T03:34:47.000+00:00' -> date """
@@ -48,7 +50,7 @@ cutoff_date = (datetime.today() + timedelta(days=-365)).date()
 compare_url_prefix = itest_project.web_url + '/-/branches?state=all&search='
 
 branch_name_patterns = ['task/', 'bug/', 'cherry-pick']
-#branch_name_patterns.extend(['defect/', 'story/', 'qfix/', 'revert-'])
+branch_name_patterns.extend(['defect/', 'qfix/', 'revert-'])
 
 def is_eligible_branch_name(branch_name):
     for i in branch_name_patterns :
@@ -65,6 +67,7 @@ resolved_branches = []
 def fetch_jira_issue(branch):
     branch.jira_issue = extract_jira_issue(branch)
     branch.jira_resolution = jira.issue(branch.jira_issue, fields='resolution').fields.resolution if branch.jira_issue else None
+    branch.author = branch.attributes['commit']['author_email']
     return branch
 
 with ThreadPoolExecutor(max_workers=100) as executor:
@@ -73,7 +76,7 @@ with ThreadPoolExecutor(max_workers=100) as executor:
         branch = i.result() 
         if not branch.jira_issue or branch.jira_resolution:
             resolved_branches.append(branch)
-            #print('[' + branch.name,'|', compare_url_prefix + quote(branch.name.encode('utf-8')),']', branch.jira_issue, branch.jira_resolution)
-            print('git push origin', ":"+branch.name)
+            print('[' + branch.name,'|', compare_url_prefix + quote(branch.name.encode('utf-8')),']', branch.jira_issue, branch.jira_resolution, branch.author)
+            #print('git push origin', ":"+branch.name)
     print(len(resolved_branches))
 
