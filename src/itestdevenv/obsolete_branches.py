@@ -1,6 +1,3 @@
-
-
-
 from os import environ
 from re import compile
 from datetime import date, timedelta, datetime 
@@ -77,6 +74,6 @@ with ThreadPoolExecutor(max_workers=100) as executor:
         if not branch.jira_issue or branch.jira_resolution:
             resolved_branches.append(branch)
             print('[' + branch.name,'|', compare_url_prefix + quote(branch.name.encode('utf-8')),']', branch.jira_issue, branch.jira_resolution, branch.author)
-            #print('git push origin', ":"+branch.name)
+            #branch.delete()
     print(len(resolved_branches))
 
