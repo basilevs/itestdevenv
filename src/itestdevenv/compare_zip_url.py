@@ -21,7 +21,7 @@ def unzip_url(url):
             return zip_file.namelist()
 
 
-version_pattern = compile(r'\d+\.\d+\.\d+.\d+')
+version_pattern = compile(r'\d+\.\d+\.\d+.\d+|\d{4,13}')
 
 
 def remove_version_from_name(name):
