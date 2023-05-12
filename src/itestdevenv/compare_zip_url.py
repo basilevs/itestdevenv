@@ -63,9 +63,13 @@ def compare_urls(prefix1: str, prefix2: str, *suffixes: str):
         with open(suffix+'.txt', 'w') as f:
             f.write('Comparing {} and {}\n'.format(url_a, url_b))
             f.write('Removed:\n')
+            removed = list(removed)
+            removed.sort()
             for name in removed:
                 f.write("-" + name+'\n')
             f.write('Added:\n')
+            added = list(added)
+            added.sort()
             for name in added:
                 f.write("+" + name+'\n')
 
