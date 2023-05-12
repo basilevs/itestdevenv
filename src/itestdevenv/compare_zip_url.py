@@ -55,6 +55,10 @@ def compare_urls(prefix1: str, prefix2: str, *suffixes: str):
         url_b = prefix2+suffix
         ensure_exists(url_a)
         ensure_exists(url_b)
+
+    for suffix in suffixes:
+        url_a = prefix1+suffix
+        url_b = prefix2+suffix
         removed, added = compare_zip_url(url_a, url_b)
         with open(suffix+'.txt', 'w') as f:
             f.write('Comparing {} and {}\n'.format(url_a, url_b))
