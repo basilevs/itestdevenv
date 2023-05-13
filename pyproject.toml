@@ -1,3 +1,13 @@
+[project]
+dependencies = [
+	"python-toggl",
+	"progress",
+	"jira",
+	"python-gitlab",
+	"requests",
+	"python-jenkins"
+]
+
 [build-system]
 requires = [    "setuptools>=62",     "wheel" ]
 build-backend = "setuptools.build_meta"
