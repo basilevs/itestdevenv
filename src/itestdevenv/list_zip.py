@@ -44,9 +44,9 @@ def process_url(url):
 		else:
 			temp_file = Path(url.path)
 		out_file = basename(url.path) + '.txt'
-		print('Product:', url, out_file)	
+		print('Product:', url.geturl(), out_file)	
 		with open(out_file, 'w') as f:
-			print('Product:', url, file=f)
+			print('Product:', url.geturl(), file=f)
 			for name in list_zip(temp_file):
 				print(remove_version_from_name(name), file=f)
 
