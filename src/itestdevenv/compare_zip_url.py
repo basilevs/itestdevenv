@@ -1,8 +1,7 @@
 from requests import head
 from tempfile import TemporaryFile
-from zipfile import ZipFile, ZipInfo
-from re import compile
 from sys import argv
+from .list_zip import list_zip, remove_version_from_name
 
 
 from .download import download_file
@@ -13,20 +12,9 @@ def unzip_url(url):
         download_file(url, temp_file)
         temp_file.flush()
         temp_file.seek(0)
-    # all file names from zip
-        with ZipFile(temp_file) as zip_file:
-            error = zip_file.testzip()
-            if error:
-                raise ValueError("Failed to unzip {0}: {1}".format(url, error))
-            return zip_file.namelist()
+        return list_zip(temp_file)
+    
 
-
-version_pattern = compile(r'\d+\.\d+\.\d+.\d+|\d{4,13}')
-
-
-def remove_version_from_name(name):
-    # nda/plugins/javax.xml.rpc_1.1.0.v201209140446/META-INF/MANIFEST.MF
-    return version_pattern.sub('', name)
 
 
 def diff_lists(a: list, b: list):

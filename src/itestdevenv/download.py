@@ -5,7 +5,7 @@ from sys import argv
 def download_file(url, file):
     """ Download an URL to a file object. Recover if download is not complete when connection is reset. """
     size = -1
-    title_length = 30 
+    title_length = 40 
     title = url if len(url) < title_length else '...'+url[-title_length:] 
     progress = Bar(title, suffix = '%(eta_td)s')
     while size < 0 or file.tell() < size:
