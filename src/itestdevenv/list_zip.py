@@ -6,6 +6,7 @@ from pathlib import Path
 from re import compile
 from urllib.parse import urlparse
 from tempfile import TemporaryFile
+from posixpath import basename
 
 from .download import download_file
 
@@ -42,7 +43,7 @@ def process_url(url):
 			temp_file.seek(0)
 		else:
 			temp_file = Path(url.path)
-		out_file = temp_file.name + '.txt'
+		out_file = basename(url.path) + '.txt'
 		print('Product:', url, out_file)	
 		with open(out_file, 'w') as f:
 			print('Product:', url, file=f)
