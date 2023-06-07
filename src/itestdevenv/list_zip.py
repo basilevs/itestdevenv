@@ -51,7 +51,7 @@ def process_url(url):
 				print(remove_version_from_name(name), file=f)
 
 if '__main__' == __name__:
-	with ThreadPoolExecutor(max_workers=10) as executor:
+	with ThreadPoolExecutor(max_workers=5) as executor:
 		futures = []
 		for zip_file in argv[1:]:
 			futures.append(executor.submit(process_url, urlparse(zip_file)))

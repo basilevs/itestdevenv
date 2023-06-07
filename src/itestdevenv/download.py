@@ -1,4 +1,5 @@
 from requests import get
+from requests.exceptions import ChunkedEncodingError
 from progress.bar import Bar
 from sys import argv
 
@@ -20,10 +21,14 @@ def download_file(url, file):
             else:
                 print()
                 print('Connection reset')
-            for chunk in r.iter_content(chunk_size=int(size / 500)):
-                file.write(chunk)
-                if progress:
-                    progress.goto(file.tell())
+            try:
+                for chunk in r.iter_content(chunk_size=int(size / 500)):
+                    file.write(chunk)
+                    if progress:
+                        progress.goto(file.tell())
+            except ChunkedEncodingError:
+                print()
+                print('Connection reset')                
     if progress:
         progress.finish()
         
