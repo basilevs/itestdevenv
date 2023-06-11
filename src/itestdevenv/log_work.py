@@ -111,7 +111,7 @@ def worked_issues(start:datetime, stop:datetime) -> Dict[Issue, timedelta]:
 	for description, time in toggl_for_interval(start, stop).items():
 		issue = worklog_to_issue(description)
 		if time > timedelta(minutes=1):
-			result[issue] += time
+			result[issue] = result.get(issue, timedelta()) + time
 			print(f'{issue.key:<11} {description:<100} {human_readable(time)}')
 	print("Entries count:", len(result))
 	print("Total time:", human_readable(sum(result.values(), timedelta())))
