@@ -15,7 +15,7 @@ def list_zip(file):
 	with ZipFile(file) as zip_file:
 				error = zip_file.testzip()
 				if error:
-					raise ValueError("Failed to unzip {0}: {1}".format(url, error))
+					raise ValueError("Failed to unzip {0}: {1}".format(file, error))
 				return zip_file.namelist()
 
 version_pattern = compile(r'\d+\.\d+\.\d+.\d+|\d{4,13}')
