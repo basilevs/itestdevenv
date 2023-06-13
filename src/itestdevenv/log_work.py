@@ -143,7 +143,10 @@ def test_since(day):
 
 
 yesterday = datetime.now() - timedelta(days=1)
+before_yesterday = datetime.now() - timedelta(days=2)
 log_work_for_day(yesterday)
+#log_work_for_day(datetime.now() - timedelta(days=3))
+#log_work_for_day(before_yesterday)
 #test_days_ago(3)
 #log_work_for_day(datetime(2023, 5, 19))
 #test_day(yesterday)
