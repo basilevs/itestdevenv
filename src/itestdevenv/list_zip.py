@@ -1,10 +1,12 @@
 from concurrent.futures import ThreadPoolExecutor
+from itertools import chain, product
 from sys import argv
+from requests import head
 from zipfile import ZipFile
 from os import walk
 from pathlib import Path
 from re import compile
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urljoin
 from tempfile import TemporaryFile
 from posixpath import basename
 
@@ -35,7 +37,7 @@ def find_products(dir):
 			if file.endswith('.zip'):
 				yield Path(root) / file
 
-def process_url(url):
+def list_url(url):
 	with TemporaryFile() as temp_file:
 		if url.scheme != 'file':
 			download_file(url.geturl(), temp_file)
@@ -50,10 +52,34 @@ def process_url(url):
 			for name in list_zip(temp_file):
 				print(remove_version_from_name(name), file=f)
 
-if '__main__' == __name__:
+def consume(iterator):
+	for _ in iterator:
+		pass
+
+def list_urls(urls):
 	with ThreadPoolExecutor(max_workers=5) as executor:
-		futures = []
-		for zip_file in argv[1:]:
-			futures.append(executor.submit(process_url, urlparse(zip_file)))
-		for future in futures:
-			future.result()
+		try:
+			consume(executor.map(ensure_url_exists, urls))
+			consume(executor.map(list_url, urls))
+		finally:
+			executor.shutdown(wait=False, cancel_futures=True)
+
+
+def ensure_url_exists(url):
+	head(url.geturl()).raise_for_status()
+
+
+def list_all_products(build_artifact_directory_url):
+	""" @param build_artifact_directory_url: URL to a directory containing
+		zip files with build artifacts. The directory can be local or remote."""
+	
+	fully_supported_platforms = ['linux.gtk.x86_64.zip', 'win32.win32.x86_64.zip']
+	all_platforms =  fully_supported_platforms + ['macosx.cocoa.aarch64.zip']
+	products = map("-".join, chain(
+		product(['iTest'], all_platforms), 
+		product(['velocity-agent', 'iTestRT', 'ndo'], fully_supported_platforms)))
+	urls = [urlparse(urljoin(build_artifact_directory_url, product)) for product in products]
+	list_urls(urls)
+
+if '__main__' == __name__:
+	list_urls([urlparse(zip_file) for zip_file in argv[1:]])
