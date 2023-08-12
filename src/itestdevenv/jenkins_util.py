@@ -13,7 +13,7 @@ def _print_queue_item(queue_item):
         pprint(queue_item)
 
 
-def build_branch(jenkins, branch, docker=False, installers=False, test=True, version='8.5.0'):
+def build_branch(jenkins, branch, docker=False, installers=False, test=True, coverage=False, version='8.5.0'):
     """ Starts branch build, returns build URL """
     parameters = {'BRANCH': branch,
                   'BUILD_DOCKER': docker,
@@ -26,7 +26,8 @@ def build_branch(jenkins, branch, docker=False, installers=False, test=True, ver
                   'do_rcptt_windows': test,
                   'ITEST_BUILD_VERSION': version,
                   'installer_branch': 'v' + version,
-                  'thirdparty_jre_branch': 'v' + version
+                  'thirdparty_jre_branch': 'v' + version,
+                  'COVERAGE': coverage
                   }
     queue_item_number = jenkins.build_job('itest--branches', parameters)
 
