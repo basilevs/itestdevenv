@@ -141,12 +141,13 @@ def test_since(day):
 	print('Testing since:', day.strftime('%Y-%m-%d %A'))
 	worked_issues(day, datetime.now())
 
+def log_days_ago(days):
+	day = datetime.now() - timedelta(days=days)
+	log_work_for_day(day)
 
-yesterday = datetime.now() - timedelta(days=1)
-before_yesterday = datetime.now() - timedelta(days=2)
-log_work_for_day(yesterday)
-#log_work_for_day(datetime.now() - timedelta(days=3))
-#log_work_for_day(before_yesterday)
+#log_days_ago(1) #yesterday
+#log_days_ago(2)
+#log_days_ago(7) #yesterday
 #test_days_ago(3)
 #log_work_for_day(datetime(2023, 5, 19))
 #test_day(yesterday)

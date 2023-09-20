@@ -1,4 +1,6 @@
 [project]
+authors = [ { name = "Vasili Gulevich", email = "vasili.gulevich@xored.com" } ]
+description = "Tools to automate Spirent iTest development environment"
 dependencies = [
 	"python-toggl",
 	"progress",
@@ -7,6 +9,8 @@ dependencies = [
 	"requests",
 	"python-jenkins"
 ]
+name = "itestdevenv"
+version = "0.0.2"
 
 [build-system]
 requires = [    "setuptools>=62",     "wheel" ]

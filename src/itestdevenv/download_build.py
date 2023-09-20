@@ -92,6 +92,8 @@ def download_itest(job, number=None):
 def download_itestrt(job, number):
     download_build(job, number, 'iTestRT')
 
+def download_ndo(job, number):
+    download_build(job, number, 'ndo')
 
 def download_build(job, number, product):
     prefix = url_prefix(job)
