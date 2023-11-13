@@ -124,7 +124,7 @@ def log_work_for_day(day):
 
 	for issue, time in worked_issues(day, day).items():
 		jira.add_worklog(issue=issue, timeSpentSeconds=time.total_seconds(
-		), started=day, comment='Toggl Track automated conversion')
+		), started=day, comment='dev')
 
 
 def test_day(day):
