@@ -46,8 +46,8 @@ cutoff_date = (datetime.today() + timedelta(days=-365)).date()
 #https://git-ito.spirenteng.com/itest/itest/-/branches?state=all&search=ITEST-20059--restVersion
 compare_url_prefix = itest_project.web_url + '/-/branches?state=all&search='
 
-branch_name_patterns = ['task/', 'bug/', 'cherry-pick']
-branch_name_patterns.extend(['defect/', 'qfix/', 'revert-'])
+branch_name_patterns = ['task/', 'bug/', 'cherry-pick', 'defect/', 'qfix/', 'revert-']
+#branch_name_patterns.extend(['story/'])
 
 def is_eligible_branch_name(branch_name):
     for i in branch_name_patterns :
