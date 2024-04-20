@@ -24,8 +24,11 @@ def architecture_suffix():
 _url_prefix_template = "https://artifactory-ito.spirenteng.com/artifactory/apt-jenkins-itest-builds/{0}/{1}"
 
 def url_prefix(job):
-    project, name = job.split("--")
-    return _url_prefix_template.format(name, project)
+    try:
+        name, folder  = job.split('/')
+    except ValueError:
+        folder, name = job.split("--")
+    return _url_prefix_template.format(name, folder)
 
 def latest_build(url_prefix):
     version_url = url_prefix + '/latest/version.txt'
