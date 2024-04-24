@@ -14,9 +14,12 @@ def check_incomplete(results: ResultList):
 		raise ValueError(f'Total: {results.total}, received: {len(results)}')
 	return results
 
+def search(jql: str):
+	return check_incomplete(jira.search_issues(jql_str=f'{base_jql_filter} AND {jql}', fields=['issuelinks', 'labels'], maxResults=10000))
+
 
 def find_link_blocked():
-	for issue in check_incomplete(jira.search_issues(jql_str=f'{base_jql_filter} AND (issueFunction in hasLinks("is blocked by")) AND resolution = Unresolved', fields=['issuelinks', 'labels'], maxResults=10000)):
+	for issue in search('(issueFunction in hasLinks("is blocked by")) AND resolution = Unresolved'):
 		for link in issue.fields.issuelinks:
 			if link.type.name != 'Blocks':
 				continue
@@ -33,9 +36,7 @@ def find_link_blocked():
 	return
 
 def find_label_blocked():
-	for issue in check_incomplete(jira.search_issues(jql_str=f'{base_jql_filter} AND (issueFunction in hasLinks("is blocked by")) AND labels = blocked', fields=['labels'], maxResults=10000)):
-		yield issue
-	return
+	return search('labels = blocked')
 
 def label_blocked(issue: Issue, is_blocked: bool):
 	try:
