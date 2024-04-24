@@ -5,6 +5,7 @@ from itertools import groupby
 from re import compile
 
 from datetime import datetime, timedelta
+from dateutil.parser import parse
 from typing import Optional, Dict
 
 from jira import JIRA, Issue, JIRAError  # jira package
@@ -26,6 +27,22 @@ def _is_work_logged(day: datetime) -> bool:
 	# YYYY-MM-DD
 	interval = day.strftime('%Y-%m-%d')
 	return bool(jira.search_issues(jql_str=f'worklogAuthor = currentUser() AND worklogDate = "{interval}"', maxResults=1))
+
+def work_logged_since(day: datetime) -> float:
+	# YYYY-MM-DD
+	result = jira.search_issues(jql_str=f'worklogAuthor = currentUser() AND worklogDate >= "{day.strftime("%Y-%m-%d")}"', maxResults=1000)
+	if result.total != len(result):
+		raise ValueError(f"Received {len(result)}, expected: {result.total}")
+	user = jira.session().name
+	start_date = day.astimezone()
+	seconds = 0
+	for issue in result:
+		for worklog in jira.worklogs(issue):
+			if worklog.author.key == user:
+				started = parse(worklog.started)
+				if started > start_date:
+					seconds = seconds + worklog.timeSpentSeconds
+	return float(seconds) / 3600
 
 
 def toggl_for_interval(start:datetime, stop:datetime) -> Dict[str, timedelta]:
