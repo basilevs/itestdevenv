@@ -44,6 +44,10 @@ def work_logged_since(day: datetime) -> float:
 					seconds = seconds + worklog.timeSpentSeconds
 	return float(seconds) / 3600
 
+def work_logged_this_month():
+	date = datetime.now()
+	month_start = datetime(year=date.year, month=date.month, day=1)
+	return work_logged_since(month_start)
 
 def toggl_for_interval(start:datetime, stop:datetime) -> Dict[str, timedelta]:
 	report = toggle_client.get_project_times(toggl_project_id, start, stop)
@@ -135,7 +139,7 @@ def worked_issues(start:datetime, stop:datetime) -> Dict[Issue, timedelta]:
 	return result
 
 
-def log_work_for_day(day):
+def log_work_for_day(day: datetime):
 	if _is_work_logged(day):
 		raise ValueError(f'Work logged on {day.strftime("%Y-%m-%d %A")}')
 
