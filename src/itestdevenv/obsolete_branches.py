@@ -47,7 +47,7 @@ cutoff_date = (datetime.today() + timedelta(days=-365)).date()
 compare_url_prefix = itest_project.web_url + '/-/branches?state=all&search='
 
 branch_name_patterns = ['task/', 'bug/', 'cherry-pick', 'defect/', 'qfix/', 'revert-']
-#branch_name_patterns.extend(['story/'])
+branch_name_patterns.extend(['story/'])
 
 def is_eligible_branch_name(branch_name):
     for i in branch_name_patterns :
