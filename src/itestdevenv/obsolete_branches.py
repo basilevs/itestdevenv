@@ -21,19 +21,23 @@ jira_issue_patterns = [ compile(i + r'-\d+') for i in jira_projects]
 
 
 
-def extract_jira_issue_from_str(input:str):
+def extract_jira_issues_from_str(input:str):
     for i in jira_issue_patterns:
-        result = i.search(input)
-        if result:
-            return result.group(0)
+        pos = 0
+        while pos < len(input):
+            result = i.search(input, pos=pos)
+            if not result:
+                break
+            yield result.group(0)
+            pos = result.endpos
 
 def extract_jira_issues(branch):
     result = []
-    result.append(extract_jira_issue_from_str(branch.name))
+    result.extend(extract_jira_issues_from_str(branch.name))
     commit = branch.attributes['commit']
-    result.append(extract_jira_issue_from_str(commit['title']))
+    result.extend(extract_jira_issues_from_str(commit['title']))
     for mr in itest_project.commits.get(commit['id']).merge_requests():
-        result.append(extract_jira_issue_from_str(mr['title']))
+        result.extend(extract_jira_issues_from_str(mr['title']))
     return set([i for i in result if i])
 
 def parse_date(iso_datetime):
