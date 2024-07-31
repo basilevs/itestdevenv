@@ -17,7 +17,7 @@ itest_project = gitlab.projects.get(186)
 
 jira_projects = ['ITEST', 'NDA', 'NDO', 'RM', 'NDO', 'INT', 'ENGOP']
 
-jira_issue_patterns = [ compile(i + '-\d+') for i in jira_projects]
+jira_issue_patterns = [ compile(i + r'-\d+') for i in jira_projects]
 
 
 
@@ -27,13 +27,14 @@ def extract_jira_issue_from_str(input:str):
         if result:
             return result.group(0)
 
-def extract_jira_issue(branch):
-    result = extract_jira_issue_from_str(branch.name)
-    if result:
-        return result
+def extract_jira_issues(branch):
+    result = []
+    result.append(extract_jira_issue_from_str(branch.name))
     commit = branch.attributes['commit']
-    result = extract_jira_issue_from_str(commit['title'])
-    return result
+    result.append(extract_jira_issue_from_str(commit['title']))
+    for mr in itest_project.commits.get(commit['id']).merge_requests():
+        result.append(extract_jira_issue_from_str(mr['title']))
+    return set([i for i in result if i])
 
 def parse_date(iso_datetime):
     """ '2018-05-16T03:34:47.000+00:00' -> date """
@@ -55,25 +56,40 @@ def is_eligible_branch_name(branch_name):
             return True
     return False
 
-all_branches = itest_project.branches.list(all=True)
-old_branches = [i for i in all_branches if parse_date(i.attributes['commit']['committed_date']) < cutoff_date]
-filtered_branches = [i for i in old_branches if is_eligible_branch_name(i.name)]
-#filtered_branches = old_branches
-resolved_branches = []
 
 def fetch_jira_issue(branch):
-    branch.jira_issue = extract_jira_issue(branch)
-    branch.jira_resolution = jira.issue(branch.jira_issue, fields='resolution').fields.resolution if branch.jira_issue else None
-    branch.author = branch.attributes['commit']['author_email']
+
+    branch.jira_issues = extract_jira_issues(branch)
+    branch.resolved = True
+    for issue in branch.jira_issues:
+        if not jira.issue(issue, fields='resolution').fields.resolution:
+            branch.resolved = False
+            break
+    commit = branch.attributes['commit']
+    branch.author = commit['author_email']
+    branch.merge_requests = itest_project.commits.get(commit['id']).merge_requests()
     return branch
 
-with ThreadPoolExecutor(max_workers=100) as executor:
-    futures = [executor.submit(fetch_jira_issue, i) for i in filtered_branches]
-    for i in futures:
-        branch = i.result() 
-        if not branch.jira_issue or branch.jira_resolution:
-            resolved_branches.append(branch)
-            print('[' + branch.name,'|', compare_url_prefix + quote(branch.name.encode('utf-8')),']', branch.jira_issue, branch.jira_resolution, branch.author)
-            #branch.delete()
-    print(len(resolved_branches))
+def format_merge_request(merge_request):
+    return f"[{merge_request['title']}|{merge_request['web_url']}]"
+
+def main():
+    with ThreadPoolExecutor(max_workers=100) as executor:
+        all_branches = itest_project.branches.list(all=True)
+        old_branches = [i for i in all_branches if parse_date(i.attributes['commit']['committed_date']) < cutoff_date]
+        filtered_branches = [i for i in old_branches if is_eligible_branch_name(i.name)]
+        #filtered_branches = old_branches
+        resolved_branches = []
+
+        futures = [executor.submit(fetch_jira_issue, i) for i in filtered_branches]
+        for i in futures:
+            branch = i.result() 
+            if branch.resolved:
+                resolved_branches.append(branch)
+                print('[' + branch.name,'|', compare_url_prefix + quote(branch.name.encode('utf-8')),']', *branch.jira_issues, branch.author, *map(format_merge_request, branch.merge_requests))
+                #branch.delete()
+        print(len(resolved_branches))
+
+if __name__ == '__main__':
+    main()
 
