@@ -8,7 +8,7 @@ from jira import JIRA # jira package
 from concurrent.futures.thread import ThreadPoolExecutor
 
 # private token can be obtained at https://git-ito.spirenteng.com/-/profile/personal_access_tokens
-gitlab = Gitlab('https://git-ito.spirenteng.com', private_token=environ['GIT_ITO_TOKEN'])
+gitlab = Gitlab('https://git.spirent.io', private_token=environ['GIT_ITO_TOKEN'])
 
 jira_options = {'server': 'https://jira.spirenteng.com/'}
 jira = JIRA(options=jira_options, token_auth=environ['JIRA_TOKEN'])
@@ -61,14 +61,11 @@ def is_eligible_branch_name(branch_name):
     return False
 
 
-def fetch_jira_issue(branch):
-
+def fetch_branch_metadata(branch):
     branch.jira_issues = extract_jira_issues(branch)
-    branch.resolved = True
     for issue in branch.jira_issues:
         if not jira.issue(issue, fields='resolution').fields.resolution:
-            branch.resolved = False
-            break
+            return None # never consider unresolved JIRA issues
     commit = branch.attributes['commit']
     branch.author = commit['author_email']
     branch.merge_requests = itest_project.commits.get(commit['id']).merge_requests()
@@ -85,13 +82,14 @@ def main():
         #filtered_branches = old_branches
         resolved_branches = []
 
-        futures = [executor.submit(fetch_jira_issue, i) for i in filtered_branches]
+        futures = [executor.submit(fetch_branch_metadata, i) for i in filtered_branches]
         for i in futures:
             branch = i.result() 
-            if branch.resolved:
-                resolved_branches.append(branch)
-                print('[' + branch.name,'|', compare_url_prefix + quote(branch.name.encode('utf-8')),']', *branch.jira_issues, branch.author, *map(format_merge_request, branch.merge_requests))
-                #branch.delete()
+            if not branch:
+                continue
+            resolved_branches.append(branch)
+            print('[' + branch.name,'|', compare_url_prefix + quote(branch.name.encode('utf-8')),']', *branch.jira_issues, branch.author, *map(format_merge_request, branch.merge_requests))
+            #branch.delete()
         print(len(resolved_branches))
 
 if __name__ == '__main__':
