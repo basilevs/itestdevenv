@@ -11,7 +11,7 @@ def download_file(url, file):
     progress = Bar(title, suffix = '%(eta_td)s')
     while size < 0 or file.tell() < size:
         headers = { 'Range': 'bytes={}-'.format(file.tell()) }
-        with get(url, stream=True, headers=headers) as r:
+        with get(url, stream=True, headers=headers, timeout=30) as r:
             if r.status_code == 404:
                 raise KeyError(url + ' is not found')
             r.raise_for_status()
