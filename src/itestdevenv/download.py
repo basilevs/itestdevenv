@@ -1,5 +1,5 @@
 from requests import get
-from requests.exceptions import ChunkedEncodingError
+from requests.exceptions import ChunkedEncodingError, ConnectionError
 from progress.bar import Bar
 from sys import argv
 
@@ -29,6 +29,9 @@ def download_file(url, file):
             except ChunkedEncodingError:
                 print()
                 print('Connection reset')                
+            except ConnectionError:
+                print()
+                print('Read timeout')
     if progress:
         progress.finish()
         

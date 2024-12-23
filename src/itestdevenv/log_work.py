@@ -45,9 +45,13 @@ def work_logged_since(day: datetime) -> float:
 	return float(seconds) / 3600
 
 def work_logged_this_month():
-	date = datetime.now()
+	date = datetime.now() - timedelta(days=3)
+	return work_logged_for_month(date)
+
+def work_logged_for_month(date: datetime):
 	month_start = datetime(year=date.year, month=date.month, day=1)
 	return work_logged_since(month_start)
+
 
 def toggl_for_interval(start:datetime, stop:datetime) -> Dict[str, timedelta]:
 	report = toggle_client.get_project_times(toggl_project_id, start, stop)
